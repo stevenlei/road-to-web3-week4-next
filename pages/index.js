@@ -34,6 +34,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialised, setIsInitialised] = useState(false);
 
+  const [paginationNext, setPaginationNext] = useState(null);
+
   const [collection, setCollection] = useState("");
   const [wallet, setWallet] = useState("");
   const [nfts, setNfts] = useState([]);
@@ -122,7 +124,7 @@ export default function Home() {
     </svg>
   );
 
-  const fetchNfts = async () => {
+  const fetchNfts = async (isNext) => {
     if (collection.length === 0 && wallet.length === 0) {
       return;
     }
@@ -146,16 +148,36 @@ export default function Home() {
         fetchURL = `${baseURL}?owner=${wallet}&contractAddresses%5B%5D=${collection}`;
       }
 
-      if (fetchURL) {
-        nfts = await fetch(fetchURL, requestOptions).then((data) => data.json());
+      if (isNext && paginationNext) {
+        if (method === "getNFTsForCollection") {
+          fetchURL = `${fetchURL}&startToken=${paginationNext}`;
+        } else if (method === "getNFTs") {
+          fetchURL = `${fetchURL}&pageKey=${paginationNext}`;
+        }
+      } else {
+        setPaginationNext(null);
       }
 
-      if (nfts) {
+      const results = await fetch(fetchURL, requestOptions).then((data) => data.json());
+
+      if (results) {
         console.log("nfts:", nfts);
-        if (nfts.nfts) {
-          setNfts(nfts.nfts);
-        } else if (nfts.ownedNfts) {
-          setNfts(nfts.ownedNfts);
+        if (results.nfts) {
+          if (isNext) {
+            // Append
+            setNfts([...nfts, ...results.nfts]);
+          } else {
+            setNfts(results.nfts);
+          }
+          setPaginationNext(results.nextToken);
+        } else if (results.ownedNfts) {
+          if (isNext) {
+            // Append
+            setNfts([...nfts, ...results.ownedNfts]);
+          } else {
+            setNfts(results.ownedNfts);
+          }
+          setPaginationNext(results.pageKey);
         }
       }
     } catch (err) {
@@ -307,7 +329,7 @@ export default function Home() {
           </div>
           <div className="w-full lg:w-72">
             <button
-              onClick={fetchNfts}
+              onClick={() => fetchNfts(false)}
               disabled={isLoading || (collection.length === 0 && wallet.length === 0)}
               className="bg-slate-800 disabled:text-slate-400 text-white w-full px-4 py-2 text-xl rounded-md shadow-lg mt-8 relative top-1"
             >
@@ -379,6 +401,18 @@ export default function Home() {
                 </div>
               ))}
             </div>
+
+            {paginationNext && (
+              <div className="text-center mt-12">
+                <button
+                  onClick={() => fetchNfts(true)}
+                  disabled={isLoading || (collection.length === 0 && wallet.length === 0)}
+                  className="bg-slate-600 disabled:text-slate-400 text-white w-full px-4 py-2 text-xl rounded-md shadow-lg mt-8 relative top-1"
+                >
+                  {isLoading ? loadingIcon() : "Next Page"}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>
