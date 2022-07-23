@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 
 const API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
@@ -341,7 +342,14 @@ export default function Home() {
                   key={index}
                   className="w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 p-2"
                 >
-                  <a href="#" className="group">
+                  <a
+                    href={`/${item.contract.address}/${Number(
+                      item.id.tokenId
+                    )}/`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group"
+                  >
                     <div className="block transition overflow-hidden rounded-md bg-white">
                       <img
                         src={getThumbnail(item)}
@@ -360,17 +368,6 @@ export default function Home() {
             </div>
           </div>
         )}
-
-        {/* <div className="text-center mt-12">
-          {!walletAddress && (
-            <button
-              className="mt-12 py-3 px-8 bg-purple-800 shadow-lg hover:bg-purple-900 rounded-full text-white text-2xl"
-              onClick={connectWallet}
-            >
-              Connect Wallet
-            </button>
-          )}
-        </div> */}
       </main>
     </div>
   );
