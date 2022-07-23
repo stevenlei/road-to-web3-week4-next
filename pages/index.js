@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Header from "../components/Header";
 
 const API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
+let copiedTimeoutHandler;
 
 const populars = [
   {
@@ -36,6 +37,8 @@ export default function Home() {
   const [collection, setCollection] = useState("");
   const [wallet, setWallet] = useState("");
   const [nfts, setNfts] = useState([]);
+
+  const [copied, setCopied] = useState([]);
 
   useEffect(() => {
     checkIfWalletIsConnected();
@@ -208,7 +211,7 @@ export default function Home() {
       return "";
     }
 
-    return `${address.substr(0, 4)}...${address.substr(address.length - 4, 4)}`;
+    return `${address.substr(0, 6)}...${address.substr(address.length - 6, 6)}`;
   };
 
   const getFilterTitle = () => {
@@ -229,6 +232,24 @@ export default function Home() {
     } else {
       setWallet(walletAddress);
     }
+  };
+
+  const copy = (address, index) => {
+    if (copiedTimeoutHandler) {
+      clearTimeout(copiedTimeoutHandler);
+      setCopied([]);
+    }
+
+    navigator.clipboard.writeText(address);
+
+    let copied = [];
+    copied[index] = true;
+
+    setCopied(copied);
+
+    copiedTimeoutHandler = setTimeout(() => {
+      setCopied([]);
+    }, 1500);
   };
 
   return (
@@ -318,10 +339,43 @@ export default function Home() {
                     <h4 className="mt-2 text-lg text-slate-700 font-bold group-hover:text-slate-900">
                       {getTitle(item)}
                     </h4>
-                    <h5 className="text-md text-slate-500 group-hover:text-slate-600">
-                      {shortenAddress(item.contract.address)}
-                    </h5>
                   </a>
+                  <h5 className="text-md text-slate-500 group-hover:text-slate-600">
+                    {shortenAddress(item.contract.address)}
+
+                    {!copied[index] && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="inline-block ml-2 relative cursor-pointer text-slate-500"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        width="18"
+                        onClick={() => copy(item.contract.address, index)}
+                      >
+                        <path d="M0 0h24v24H0V0z" fill="none"></path>
+                        <path
+                          fill="currentColor"
+                          d="M15 1H4c-1.1 0-2 .9-2 2v13c0 .55.45 1 1 1s1-.45 1-1V4c0-.55.45-1 1-1h10c.55 0 1-.45 1-1s-.45-1-1-1zm4 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-1 16H9c-.55 0-1-.45-1-1V8c0-.55.45-1 1-1h9c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1z"
+                        ></path>
+                      </svg>
+                    )}
+
+                    {copied[index] && (
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="inline-block ml-2 relative cursor-pointer text-slate-500"
+                      >
+                        <path fill="none" d="M0 0h24v24H0V0Z" />
+                        <path
+                          fill="currentColor"
+                          d="M9 16.17L5.53 12.7c-.39-.39-1.02-.39-1.41 0 -.39.39-.39 1.02 0 1.41l4.18 4.18c.39.39 1.02.39 1.41 0L20.29 7.71c.39-.39.39-1.02 0-1.41 -.39-.39-1.02-.39-1.41 0L9 16.17Z"
+                        />
+                      </svg>
+                    )}
+                  </h5>
                 </div>
               ))}
             </div>
