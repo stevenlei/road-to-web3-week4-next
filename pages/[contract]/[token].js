@@ -1,7 +1,8 @@
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+
+import Header from "../../components/Header";
 
 const API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 
@@ -25,14 +26,7 @@ const Info = () => {
       fill="none"
       viewBox="0 0 24 24"
     >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      ></circle>
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
       <path
         className="opacity-75"
         fill="currentColor"
@@ -76,6 +70,14 @@ const Info = () => {
       }
 
       return source;
+    } else if (item.metadata.image) {
+      let image = item.metadata.image;
+
+      if (image.includes("ipfs://")) {
+        image = image.replace("ipfs://", "https://ipfs.infura.io/ipfs/");
+      }
+
+      return image;
     } else {
       return "/images/NFT.png";
     }
@@ -105,40 +107,11 @@ const Info = () => {
       </Head>
 
       <main className="px-6 py-12 md:p-20">
-        <div className="flex flex-wrap md:flex-nowrap">
-          <h1 className="text-5xl font-bold text-white w-full md:flex-1">
-            Road to Web3 - Week 4
-          </h1>
-          <a
-            target="_blank"
-            rel="noreferrer"
-            href="https://twitter.com/stevenkin"
-            className="mt-4 md:mt-0 bg-slate-800 text-slate-300 rounded-full text-sm self-start py-2 px-4 hover:bg-slate-700"
-          >
-            Follow me @stevenkin
-          </a>
-        </div>
-        <p className="mt-4 text-lg text-slate-500">
-          This is a practice project to learn Web3 and ethers.js. Fourth week is
-          to &quot;Create an NFT Gallery)&quot; using Alchemy API.
-          <br />
-          <a
-            href="https://docs.alchemy.com/alchemy/road-to-web3/weekly-learning-challenges/4.-how-to-create-an-nft-gallery"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-block bg-slate-800 rounded-md text-slate-300 mt-4 p-1 px-2 hover:bg-slate-700"
-          >
-            ➡️ Amazing tutorial here
-          </a>
-        </p>
+        <Header />
 
         <div className="p-4 md:p-6 lg:p-8 xl:p-12 bg-slate-100 rounded-xl mt-8">
           <div className="flex md:mt-4 flex-wrap md:flex-nowrap">
-            {!nft && (
-              <div className="text-center py-12 w-full">
-                {loadingIcon("text-slate-600")}
-              </div>
-            )}
+            {!nft && <div className="text-center py-12 w-full">{loadingIcon("text-slate-600")}</div>}
             {nft && (
               <>
                 <div className="block rounded-md bg-white w-full md:w-1/3 lg:w-1/3 2xl:w-1/4 self-start">
@@ -148,14 +121,10 @@ const Info = () => {
                   />
                 </div>
                 <div className="mt-8 md:mt-0 md:ml-12 flex-1">
-                  <h4 className="text-4xl text-slate-700 font-bold group-hover:text-slate-900">
-                    {getTitle(nft)}
-                  </h4>
+                  <h4 className="text-4xl text-slate-700 font-bold group-hover:text-slate-900">{getTitle(nft)}</h4>
                   <ul className="mt-10 text-xl text-slate-500">
                     <li className="flex mt-2 flex-wrap">
-                      <span className="block w-full lg:w-60">
-                        Contract Address
-                      </span>
+                      <span className="block w-full lg:w-60">Contract Address</span>
                       <span className="block w-full text-slate-700 break-word break-all">
                         <a
                           href={`https://etherscan.io/address/${nft.contract.address}`}
@@ -169,28 +138,20 @@ const Info = () => {
                     </li>
                     <li className="flex mt-2">
                       <span className="block w-full lg:w-60">Token ID</span>
-                      <span className="block w-full text-slate-700">
-                        #{Number(nft.id.tokenId)}
-                      </span>
+                      <span className="block w-full text-slate-700">#{Number(nft.id.tokenId)}</span>
                     </li>
                   </ul>
                   {nft.metadata.attributes.length > 0 && (
                     <>
-                      <h4 className="mt-12 text-slate-700 text-2xl">
-                        Attributes
-                      </h4>
+                      <h4 className="mt-12 text-slate-700 text-2xl">Attributes</h4>
                       <ul className="flex gap-4 md:gap-6 mt-4 flex-wrap">
                         {nft.metadata.attributes.map((item, index) => (
                           <li
                             key={index}
                             className="px-4 py-2 md:px-6 md:py-4 bg-white rounded-xl ring-2 ring-slate-200"
                           >
-                            <span className="uppercase block text-slate-400 text-sm">
-                              {item.trait_type}
-                            </span>
-                            <span className="text-slate-700 text-xl">
-                              {item.value}
-                            </span>
+                            <span className="uppercase block text-slate-400 text-sm">{item.trait_type}</span>
+                            <span className="text-slate-700 text-xl">{item.value}</span>
                           </li>
                         ))}
                       </ul>

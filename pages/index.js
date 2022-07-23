@@ -1,6 +1,7 @@
 import Head from "next/head";
-import Link from "next/link";
 import { useState, useEffect } from "react";
+
+import Header from "../components/Header";
 
 const API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 
@@ -109,14 +110,7 @@ export default function Home() {
       fill="none"
       viewBox="0 0 24 24"
     >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      ></circle>
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
       <path
         className="opacity-75"
         fill="currentColor"
@@ -133,10 +127,7 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const method =
-        collection.length > 0 && wallet.length === 0
-          ? "getNFTsForCollection"
-          : "getNFTs";
+      const method = collection.length > 0 && wallet.length === 0 ? "getNFTsForCollection" : "getNFTs";
       const baseURL = `https://eth-mainnet.alchemyapi.io/v2/${API_KEY}/${method}/`;
       let requestOptions = {
         method: "GET",
@@ -153,9 +144,7 @@ export default function Home() {
       }
 
       if (fetchURL) {
-        nfts = await fetch(fetchURL, requestOptions).then((data) =>
-          data.json()
-        );
+        nfts = await fetch(fetchURL, requestOptions).then((data) => data.json());
       }
 
       if (nfts) {
@@ -186,6 +175,14 @@ export default function Home() {
       }
 
       return source;
+    } else if (item.metadata.image) {
+      let image = item.metadata.image;
+
+      if (image.includes("ipfs://")) {
+        image = image.replace("ipfs://", "https://ipfs.infura.io/ipfs/");
+      }
+
+      return image;
     } else {
       return "/images/NFT.png";
     }
@@ -243,32 +240,7 @@ export default function Home() {
       </Head>
 
       <main className="px-6 py-12 md:p-20">
-        <div className="flex flex-wrap md:flex-nowrap">
-          <h1 className="text-5xl font-bold text-white w-full md:flex-1">
-            Road to Web3 - Week 4
-          </h1>
-          <a
-            target="_blank"
-            rel="noreferrer"
-            href="https://twitter.com/stevenkin"
-            className="mt-4 md:mt-0 bg-slate-800 text-slate-300 rounded-full text-sm self-start py-2 px-4 hover:bg-slate-700"
-          >
-            Follow me @stevenkin
-          </a>
-        </div>
-        <p className="mt-4 text-lg text-slate-500">
-          This is a practice project to learn Web3 and ethers.js. Fourth week is
-          to &quot;Create an NFT Gallery)&quot; using Alchemy API.
-          <br />
-          <a
-            href="https://docs.alchemy.com/alchemy/road-to-web3/weekly-learning-challenges/4.-how-to-create-an-nft-gallery"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-block bg-slate-800 rounded-md text-slate-300 mt-4 p-1 px-2 hover:bg-slate-700"
-          >
-            ➡️ Amazing tutorial here
-          </a>
-        </p>
+        <Header />
 
         <div className="bg-slate-50 p-8 mt-8 rounded-xl shadow-xl shadow-slate-900 flex gap-x-8 flex-wrap lg:flex-nowrap">
           <div className="w-full lg:flex-1 flex flex-col text-lg text-slate-600">
@@ -306,10 +278,7 @@ export default function Home() {
             />
             <div className="text-sm flex">
               <ul className="flex gap-x-2">
-                <li
-                  onClick={setMyAddress}
-                  className="cursor-pointer bg-slate-200 px-1 rounded hover:bg-slate-300"
-                >
+                <li onClick={setMyAddress} className="cursor-pointer bg-slate-200 px-1 rounded hover:bg-slate-300">
                   Get my address with MetaMask
                 </li>
               </ul>
@@ -318,9 +287,7 @@ export default function Home() {
           <div className="w-full lg:w-72">
             <button
               onClick={fetchNfts}
-              disabled={
-                isLoading || (collection.length === 0 && wallet.length === 0)
-              }
+              disabled={isLoading || (collection.length === 0 && wallet.length === 0)}
               className="bg-slate-800 disabled:text-slate-400 text-white w-full px-4 py-2 text-xl rounded-md shadow-lg mt-8 relative top-1"
             >
               {isLoading ? loadingIcon() : getFilterTitle()}
@@ -338,23 +305,15 @@ export default function Home() {
               )}
 
               {nfts.map((item, index) => (
-                <div
-                  key={index}
-                  className="w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 p-2"
-                >
+                <div key={index} className="w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6 p-2">
                   <a
-                    href={`/${item.contract.address}/${Number(
-                      item.id.tokenId
-                    )}/`}
+                    href={`/${item.contract.address}/${Number(item.id.tokenId)}/`}
                     target="_blank"
                     rel="noreferrer"
                     className="group"
                   >
                     <div className="block transition overflow-hidden rounded-md bg-white">
-                      <img
-                        src={getThumbnail(item)}
-                        className="w-full group-hover:scale-125 transition duration-400"
-                      />
+                      <img src={getThumbnail(item)} className="w-full group-hover:scale-125 transition duration-400" />
                     </div>
                     <h4 className="mt-2 text-lg text-slate-700 font-bold group-hover:text-slate-900">
                       {getTitle(item)}
